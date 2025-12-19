@@ -16,7 +16,6 @@ int relayPins[] = {
   25, 26, 27,
   32, 33
 };
-
 const int RELAY_COUNT = sizeof(relayPins) / sizeof(relayPins[0]);
 
 WebServer server(80);
@@ -27,20 +26,95 @@ const char dashboard_html[] PROGMEM = R"rawliteral(
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ESP32 Touch Panel</title>
+<title>ESP32 Touch Control</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#0f2027;color:#fff}
-header{text-align:center;padding:18px;font-size:22px;background:#00000055}
-.container{padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:18px}
-.card{background:#ffffff22;border-radius:14px;padding:18px;text-align:center}
-.btn{width:100%;padding:16px;border:none;border-radius:14px;font-size:17px;font-weight:bold;user-select:none}
-.on{background:#00e676;color:#000}
-.off{background:#ff5252;color:#000}
+:root{
+  --bg:#0f2027;
+  --card:#ffffff18;
+  --off:#ff4d4d;
+  --on:#00e676;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Segoe UI,Arial;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+}
+
+header{
+  text-align:center;
+  padding:20px;
+  font-size:24px;
+  font-weight:600;
+  letter-spacing:1px;
+  background:rgba(0,0,0,0.35);
+  backdrop-filter:blur(6px);
+}
+
+.container{
+  padding:22px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:22px;
+}
+
+.card{
+  background:var(--card);
+  border-radius:18px;
+  padding:18px;
+  text-align:center;
+  box-shadow:0 12px 30px rgba(0,0,0,.35);
+  backdrop-filter:blur(8px);
+  transition:transform .3s;
+}
+.card:hover{transform:translateY(-4px)}
+
+.card h4{
+  margin:8px 0 14px;
+  font-weight:500;
+}
+
+.btn{
+  width:100%;
+  height:70px;
+  border:none;
+  border-radius:16px;
+  font-size:18px;
+  font-weight:700;
+  cursor:pointer;
+  user-select:none;
+  transition:all .15s ease;
+  box-shadow:
+    inset 0 -6px 10px rgba(0,0,0,.3),
+    0 6px 18px rgba(0,0,0,.45);
+}
+
+.btn.off{
+  background:linear-gradient(145deg,#ff6b6b,#ff3b3b);
+  color:#000;
+}
+
+.btn.on{
+  background:linear-gradient(145deg,#00ff87,#00c853);
+  color:#000;
+  box-shadow:
+    0 0 25px rgba(0,255,135,.9),
+    inset 0 -4px 8px rgba(0,0,0,.35);
+  transform:scale(.96);
+}
+
+.btn:active{
+  transform:scale(.92);
+}
 </style>
 </head>
 
 <body>
+
 <header>ESP32 TOUCH CONTROL PANEL</header>
 
 <div class="container">
@@ -64,12 +138,15 @@ for(let i=1;i<=18;i++){
 
 <script>
 function press(id,btn){
-  btn.className="btn on";
+  btn.classList.remove("off");
+  btn.classList.add("on");
   btn.innerText="ON";
   fetch("/on?id="+id);
 }
+
 function release(id,btn){
-  btn.className="btn off";
+  btn.classList.remove("on");
+  btn.classList.add("off");
   btn.innerText="HOLD";
   fetch("/off?id="+id);
 }
@@ -110,7 +187,6 @@ void setup(){
   }
 
   WiFi.softAP(ssid, password);
-  Serial.print("AP IP: ");
   Serial.println(WiFi.softAPIP());
 
   MDNS.begin("esp32");
@@ -120,7 +196,6 @@ void setup(){
   server.on("/off", handleOff);
 
   server.begin();
-  Serial.println("Web server started");
 }
 
 // -------- LOOP --------
