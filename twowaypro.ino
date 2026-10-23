@@ -70,7 +70,7 @@ void handleButtonPress(int button) {
     // Turn off all LEDs first
     turnOffAllLEDs();
     
-    // Turn on appropriate LEDs based on button
+    // Turn on appropriate LEDs based on button 
     switch(button) {
         case 1: // B1 → L3 + L5
             gpio_set_level(L3, 1);
