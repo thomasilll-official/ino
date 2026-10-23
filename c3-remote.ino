@@ -1,6 +1,11 @@
 // ESP32-C3 Super Mini
 // 4 Push Buttons + 4 Blinking LEDs
 
+//I connect button on 0,1,3,4
+//And led on 5,6,7,10 
+//When i click btn1 then turn on led1
+//I connect push button
+
 const int buttons[] = {0, 1, 3, 4};
 const int leds[]    = {5, 6, 7, 10};
 
